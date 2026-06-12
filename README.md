@@ -1,6 +1,6 @@
 # 🏗 Scaffold-ETH 2
 
-**Live URL:** https://bafybeidotd3mnv43mql5bi5kly3pce7vfkh2swpf5sqmuphon7xfnwfsv4.ipfs.community.bgipfs.com/
+**Live URL:** https://bafybeigs3a6quhfy6ulhrn7sb6z33qr46aczco2xqwiwopbvgjgmnbhepu.ipfs.community.bgipfs.com/
 
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |

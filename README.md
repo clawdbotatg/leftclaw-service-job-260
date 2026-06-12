@@ -1,85 +1,67 @@
-# 🏗 Scaffold-ETH 2
+# Larva Content Rankings
 
-**Live URL:** https://bafybeigs3a6quhfy6ulhrn7sb6z33qr46aczco2xqwiwopbvgjgmnbhepu.ipfs.community.bgipfs.com/
+Onchain content ranking and governance sandbox for the larv.ai ecosystem. Creators submit digital content (film, music, art, writing) by IPFS CID. Larvas vote by burning CLAWD tokens — every vote is sybil-resistant, stake-weighted, and permanently onchain.
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+## Live App
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+**https://bafybeigs3a6quhfy6ulhrn7sb6z33qr46aczco2xqwiwopbvgjgmnbhepu.ipfs.community.bgipfs.com/**
 
-> [!NOTE]
-> 🤖 Scaffold-ETH 2 is AI-ready! It has everything agents need to build on Ethereum. Check `.agents/`, `.claude/`, `.opencode` or `.cursor/` for more info.
+## Smart Contract
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+**ContentRanking** — Base Mainnet  
+Address: [`0x55F605f04DA41Cbf821c6d5D028EA0cAB5B1cB39`](https://basescan.org/address/0x55f605f04da41cbf821c6d5d028ea0cab5b1cb39#code)
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## What It Does
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+- **Submit Content** — Creators submit IPFS CIDs for film, music, art, or writing. A small anti-spam ETH fee (0.00001 ETH) is required.
+- **Vote** — Larvas vote by specifying how much CLAWD to burn. The burn amount is the vote weight. Each address can vote once per content during the 7-day voting window.
+- **Rankings** — Onchain deterministic ranking sorted by weighted vote score, with blockhash entropy for tiebreaking. Top 200 items returned.
+- **Dispute** — After voting closes, anyone can stake 0.001 ETH to dispute a content. The owner resolves disputes (upheld → content removed; not upheld → 50% stake refunded). If the owner is inactive, anyone can call `resolveExpiredDispute()` after 24 hours.
+- **Slash** — The owner can slash a fraudulent vote, reversing its score contribution.
 
-## Requirements
+## Architecture
 
-Before you begin, you need to install the following tools:
+| Component | Details |
+|-----------|---------|
+| Chain | Base (8453) |
+| Framework | Scaffold-ETH 2 + Foundry |
+| IPFS | bgipfs |
+| CLAWD Token | Set by owner after deployment via `setClawdToken` |
+| Owner | `0x1d266aae9E1f8cb9228821C40fB5DbC7C771cbce` (client) |
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+## Client Setup Required
 
-## Quickstart
+After taking ownership, call `setClawdToken(address)` with the live CLAWD token address on Base. Until this is set, voting is disabled — content submission and disputes work immediately.
 
-To get started with Scaffold-ETH 2, follow the steps below:
+## Running Locally
 
-1. Install dependencies if it was skipped in CLI:
-
-```
-cd my-dapp-example
+```bash
+git clone https://github.com/clawdbotatg/leftclaw-service-job-260
+cd leftclaw-service-job-260
 yarn install
-```
 
-2. Run a local network in the first terminal:
+# Start local fork
+yarn fork --network base
 
-```
-yarn chain
-```
-
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
-
-3. On a second terminal, deploy the test contract:
-
-```
+# In new terminal, deploy contracts
 yarn deploy
-```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
+# In new terminal, start frontend
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit `http://localhost:3000`
 
-Run smart contract test with `yarn foundry:test`
+## Security
 
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
+- `Ownable2Step` — ownership transfer requires acceptance
+- `ReentrancyGuard` on all state-changing external functions
+- `SafeERC20` for all CLAWD token transfers
+- CEI pattern throughout
+- Burn via transfer-to-dead (compatible with any ERC20)
+- int256 cast guard prevents vote inversion on large burn amounts
+- Permissionless expired-dispute resolution prevents ETH stake lockup
 
+## GitHub
 
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+https://github.com/clawdbotatg/leftclaw-service-job-260
